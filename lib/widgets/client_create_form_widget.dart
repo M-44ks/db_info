@@ -2,7 +2,12 @@ import 'package:db_info/models/client.dart';
 import 'package:flutter/material.dart';
 
 class ClientCreateFormWidget extends StatefulWidget {
-  const ClientCreateFormWidget({super.key});
+  final Client? client;
+
+  const ClientCreateFormWidget({
+    super.key,
+    this.client,
+  });
 
   @override
   State<ClientCreateFormWidget> createState() => _ClientCreateFormWidgetState();
@@ -21,6 +26,44 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
   late TextEditingController controllerDiscount;
   double _currentAmountOfPeople = 2;
   late TextEditingController controllerNotes;
+
+  @override
+  void initState() {
+    super.initState();
+
+    initClient();
+  }
+
+  void initClient() {
+    final from = widget.client == null ? '' : widget.client!.from;
+    final firstName = widget.client == null ? '' : widget.client!.firstName;
+    final lastName = widget.client == null ? '' : widget.client!.firstName;
+    final phone = widget.client == null ? '' : widget.client!.phone;
+    final email = widget.client == null ? '' : widget.client!.email;
+    final yachtName = widget.client == null ? '' : widget.client!.yachtName;
+    final charterDate = widget.client?.charterDate;
+    final advance = widget.client == null ? '' : widget.client!.advance;
+    final sum = widget.client == null ? '' : widget.client!.sum;
+    final discount = widget.client == null ? '' : widget.client!.discount;
+    final double amountOfPeople = widget.client == null ? 1 : widget.client!.amountOfPeople;
+    final notes = widget.client == null ? '' : widget.client!.notes;
+
+
+    setState(() {
+      controllerFrom = TextEditingController(text: from);
+      controllerFirstName = TextEditingController(text: firstName);
+      controllerLastName = TextEditingController(text: lastName);
+      controllerPhone = TextEditingController(text: phone);
+      controllerEmail = TextEditingController(text: email);
+      this.yachtName = yachtName;
+      _selectedDateTimeRange = charterDate;
+      controllerAdvance = TextEditingController(text: advance);
+      controllerSum = TextEditingController(text: sum);
+      controllerDiscount = TextEditingController(text: discount);
+      _currentAmountOfPeople = amountOfPeople;
+      controllerNotes = TextEditingController(text: notes);
+    });
+  }
 
   @override
   Widget build(BuildContext context) =>
@@ -101,7 +144,7 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
           controller: controllerPhone,
           enabled: flag,
           //TODO numer dzwoniącego
-          initialValue: '123 456 789',
+          // initialValue: '123 456 789',
           decoration: const InputDecoration(
             labelText: 'Telefon',
             border: OutlineInputBorder(),
