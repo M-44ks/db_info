@@ -41,13 +41,14 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
     final from = widget.client?.from ?? '';
     final firstName = widget.client?.firstName ?? '';
     final lastName = widget.client?.lastName ?? '';
+    //TODO Tu logika połączenia przychodzącego
     final phone = widget.client?.phone ?? '';
     final email = widget.client?.email ?? '';
     final yachtName = widget.client?.yachtName ?? '';
     final charterDate = widget.client?.charterDate;
-    final advance = widget.client?.advance ?? '0';
-    final sum = widget.client?.sum ?? '0';
-    final discount = widget.client?.discount ?? '0';
+    final advance = widget.client?.advance ?? '';
+    final sum = widget.client?.sum ?? '';
+    final discount = widget.client?.discount ?? '';
     final double amountOfPeople = widget.client?.amountOfPeople ?? 1;
     final notes = widget.client?.notes ?? '';
 
@@ -59,9 +60,9 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
       controllerEmail = TextEditingController(text: email);
       this.yachtName = yachtName;
       _selectedDateTimeRange = charterDate;
-      controllerAdvance = TextEditingController(text: advance);
-      controllerSum = TextEditingController(text: sum);
-      controllerDiscount = TextEditingController(text: discount);
+      controllerAdvance = TextEditingController(text: advance.toString());
+      controllerSum = TextEditingController(text: sum.toString());
+      controllerDiscount = TextEditingController(text: discount.toString());
       _currentAmountOfPeople = amountOfPeople;
       controllerNotes = TextEditingController(text: notes);
     });
@@ -291,9 +292,9 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
               email: controllerEmail.text,
               yachtName: yachtName,
               charterDate: _selectedDateTimeRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-              advance: controllerAdvance.text,
-              sum: controllerSum.text,
-              discount: controllerDiscount.text,
+              advance: double.tryParse(controllerAdvance.text) ?? 0.0,
+              sum: double.tryParse(controllerSum.text) ?? 0.0,
+              discount: double.tryParse(controllerDiscount.text) ?? 0.0,
               amountOfPeople: _currentAmountOfPeople,
               notes: controllerNotes.text
           );

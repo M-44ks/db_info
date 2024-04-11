@@ -12,9 +12,9 @@ class Client {
   final String email;
   final String yachtName;
   final DateTimeRange charterDate;
-  final String advance;
-  final String sum;
-  final String discount;
+  final double advance;
+  final double sum;
+  final double discount;
   final double amountOfPeople;
   final String notes;
 
@@ -45,9 +45,9 @@ class Client {
             start: (json['charterStartDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
             end: (json['charterEndDate'] as Timestamp?)?.toDate() ?? DateTime.now()
         ),
-        advance: json['advance'] as String? ?? '0',
-        sum: json['sum'] as String? ?? '0',
-        discount: json['discount'] as String? ?? '0',
+        advance: (json['advance'] as num?)?.toDouble() ?? 0.0,
+        sum: (json['sum'] as num?)?.toDouble() ?? 0.0,
+        discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
         amountOfPeople: (json['amountOfPeople'] as num?)?.toDouble() ?? 1,
         notes: json['notes'] as String? ?? ''
     );
@@ -68,6 +68,4 @@ class Client {
     'amountOfPeople': amountOfPeople,
     'notes': notes
   };
-
-
 }
