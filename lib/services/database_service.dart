@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:db_info/models/client.dart';
 
 
-const String CLIENT_COLLECTON_REF = "clients";
+const String clientCollectionRef = "clients";
 
 class DatabaseService {
   final _firestore = FirebaseFirestore.instance;
@@ -10,7 +10,7 @@ class DatabaseService {
   late final CollectionReference _clientsRef;
 
   DatabaseService() {
-    _clientsRef = _firestore.collection(CLIENT_COLLECTON_REF).withConverter<Client>(
+    _clientsRef = _firestore.collection(clientCollectionRef).withConverter<Client>(
         fromFirestore: (snapshots, _) => Client.fromJson(
           snapshots.data()!,
         ),
