@@ -1,3 +1,4 @@
+import 'package:db_info/widgets/get_clients_widget.dart';
 import 'package:flutter/material.dart';
 
 class GetClientsScreen extends StatefulWidget {
@@ -9,7 +10,15 @@ class GetClientsScreen extends StatefulWidget {
 
 class _GetClientsScreenState extends State<GetClientsScreen> {
   @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Clients'),
+        ),
+        body: const SafeArea(
+            child: Column(
+              children: [
+                GetClientsWidget(),
+              ],
+            )),
+      );
 }
