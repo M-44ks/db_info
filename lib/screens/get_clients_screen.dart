@@ -1,5 +1,6 @@
-import 'package:db_info/widgets/get_clients_widget.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/get_reservations_widget.dart';
 
 class GetClientsScreen extends StatefulWidget {
   const GetClientsScreen({super.key});
@@ -17,7 +18,7 @@ class _GetClientsScreenState extends State<GetClientsScreen> {
         body: const SafeArea(
             child: Column(
               children: [
-                GetClientsWidget(),
+                GetReservationsWidget(),
               ],
             )),
       );

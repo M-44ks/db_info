@@ -1,21 +1,21 @@
-import 'package:db_info/models/client.dart';
 import 'package:flutter/material.dart';
 
+import '../models/reservation.dart';
 import '../services/database_service.dart';
 
-class ClientCreateFormWidget extends StatefulWidget {
-  final Client? client;
+class CreateReservationFormWidget extends StatefulWidget {
+  final Reservation? reservation;
 
-  const ClientCreateFormWidget({
+  const CreateReservationFormWidget({
     super.key,
-    this.client,
+    this.reservation,
   });
 
   @override
-  State<ClientCreateFormWidget> createState() => _ClientCreateFormWidgetState();
+  State<CreateReservationFormWidget> createState() => _CreateReservationFormWidgetState();
 }
 
-class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
+class _CreateReservationFormWidgetState extends State<CreateReservationFormWidget> {
   final DatabaseService _databaseService = DatabaseService();
 
   late TextEditingController controllerFrom;
@@ -34,23 +34,23 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
   @override
   void initState() {
     super.initState();
-    initClient();
+    initReservation();
   }
 
-  void initClient() {
-    final from = widget.client?.from ?? '';
-    final firstName = widget.client?.firstName ?? '';
-    final lastName = widget.client?.lastName ?? '';
+  void initReservation() {
+    final from = widget.reservation?.from ?? '';
+    final firstName = widget.reservation?.firstName ?? '';
+    final lastName = widget.reservation?.lastName ?? '';
     //TODO Tu logika połączenia przychodzącego
-    final phone = widget.client?.phone ?? '';
-    final email = widget.client?.email ?? '';
-    final yachtName = widget.client?.yachtName ?? '';
-    final charterDate = widget.client?.charterDate;
-    final advance = widget.client?.advance ?? '';
-    final sum = widget.client?.sum ?? '';
-    final discount = widget.client?.discount ?? '';
-    final double amountOfPeople = widget.client?.amountOfPeople ?? 1;
-    final notes = widget.client?.notes ?? '';
+    final phone = widget.reservation?.phone ?? '';
+    final email = widget.reservation?.email ?? '';
+    final yachtName = widget.reservation?.yachtName ?? '';
+    final charterDate = widget.reservation?.charterDate;
+    final advance = widget.reservation?.advance ?? '';
+    final sum = widget.reservation?.sum ?? '';
+    final discount = widget.reservation?.discount ?? '';
+    final double amountOfPeople = widget.reservation?.amountOfPeople ?? 1;
+    final notes = widget.reservation?.notes ?? '';
 
     setState(() {
       controllerFrom = TextEditingController(text: from);
@@ -284,7 +284,7 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
   Widget buildSubmit() =>
       FilledButton(
         onPressed: () {
-          Client client = Client(
+          Reservation reservation = Reservation(
               from: controllerFrom.text,
               firstName: controllerFirstName.text,
               lastName: controllerLastName.text,
@@ -300,7 +300,7 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
           );
 
 
-          _databaseService.addClient(client);
+          _databaseService.addReservation(reservation);
           Navigator.pop(context);
         },
         style: OutlinedButton.styleFrom(

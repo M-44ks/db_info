@@ -1,8 +1,9 @@
-import 'package:db_info/widgets/client_create_form_widget.dart';
 import 'package:flutter/material.dart';
 
-class CreateClientScreen extends StatelessWidget {
-  const CreateClientScreen({super.key});
+import '../widgets/create_reservation_form_widget.dart';
+
+class CreateReservationScreen extends StatelessWidget {
+  const CreateReservationScreen({super.key});
 
   @override
   Widget build(BuildContext context) =>
@@ -14,7 +15,7 @@ class CreateClientScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: const [
-              ClientCreateFormWidget(),
+              CreateReservationFormWidget(),
             ],
           ),
         ),

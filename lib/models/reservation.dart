@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 final formatter = DateFormat.yMd();
 
-class Client {
+class Reservation {
   final String from;
   final String firstName;
   final String lastName;
@@ -18,7 +18,7 @@ class Client {
   final double amountOfPeople;
   final String notes;
 
-  const Client({
+  const Reservation({
     required this.from,
     required this.firstName,
     required this.lastName,
@@ -33,8 +33,8 @@ class Client {
     required this.notes,
   });
 
-  factory Client.fromJson(Map<String, Object?> json) {
-    return Client(
+  factory Reservation.fromJson(Map<String, Object?> json) {
+    return Reservation(
         from: json['from'] as String? ?? '',
         firstName: json['firstName'] as String? ?? '',
         lastName: json['lastName'] as String? ?? '',

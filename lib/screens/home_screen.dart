@@ -1,6 +1,7 @@
-import 'package:db_info/screens/create_client_screen.dart';
 import 'package:db_info/screens/get_clients_screen.dart';
 import 'package:flutter/material.dart';
+
+import 'create_reservation_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,23 +15,19 @@ class HomeScreen extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text('Features'),
-            ),
             ListTile(
-              title: const Text('Create Client'),
+              title: const Text('Utwórz rezerwację'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const CreateClientScreen(),
+                    builder: (context) => const CreateReservationScreen(),
                   ),
                 );
               },
             ),
             ListTile(
-              title: const Text('Clients'),
+              title: const Text('Lista rezerwacji'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).push(

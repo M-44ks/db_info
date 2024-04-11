@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:db_info/models/client.dart';
+import '../models/reservation.dart';
 
 
 const String clientCollectionRef = "clients";
@@ -10,26 +10,26 @@ class DatabaseService {
   late final CollectionReference _clientsRef;
 
   DatabaseService() {
-    _clientsRef = _firestore.collection(clientCollectionRef).withConverter<Client>(
-        fromFirestore: (snapshots, _) => Client.fromJson(
+    _clientsRef = _firestore.collection(clientCollectionRef).withConverter<Reservation>(
+        fromFirestore: (snapshots, _) => Reservation.fromJson(
           snapshots.data()!,
         ),
-        toFirestore: (client, _) => client.toJson());
+        toFirestore: (reservation, _) => reservation.toJson());
   }
 
-  Stream<QuerySnapshot> getClients() {
+  Stream<QuerySnapshot> getReservations() {
     return _clientsRef.snapshots();
   }
 
-  void addClient(Client client) async {
-    _clientsRef.add(client);
+  void addReservation(Reservation reservation) async {
+    _clientsRef.add(reservation);
   }
 
-  void updateClient(String clientId, Client client) {
-    _clientsRef.doc(clientId).update(client.toJson());
+  void updateReservation(String reservationId, Reservation reservation) {
+    _clientsRef.doc(reservationId).update(reservation.toJson());
   }
 
-  void deleteClient(String clientId) {
-    _clientsRef.doc(clientId).delete();
+  void deleteReservation(String reservationId) {
+    _clientsRef.doc(reservationId).delete();
   }
 }
