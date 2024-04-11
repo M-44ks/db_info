@@ -8,11 +8,11 @@ class CreateClientScreen extends StatelessWidget {
   Widget build(BuildContext context) =>
       Scaffold(
         appBar: AppBar(
-          title: Text('Create client'),
+          title: const Text('Create client'),
         ),
         body: Center(
           child: ListView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             children: const [
               ClientCreateFormWidget(),
             ],
