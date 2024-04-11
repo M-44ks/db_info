@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -32,19 +33,41 @@ class Client {
     required this.notes,
   });
 
-  Client.fromJson(Map<String, Object?> json)
-      : this(
-    from: json['from'] as String,
-    firstName: json['firstName'] as String,
-    lastName: json['lastName'] as String,
-    phone: json['phone'] as String,
-    email: json['email'] as String,
-    yachtName: json['yachtName'] as String,
-    charterDate: json['charterDate'] as DateTimeRange,
-    advance: json['advance'] as String,
-    sum: json['sum'] as String,
-    discount: json['discount'] as String,
-    amountOfPeople: json['amountOfPeople'] as double,
-    notes: json['discount'] as String,
-  );
+  factory Client.fromJson(Map<String, Object?> json) {
+    return Client(
+        from: json['from'] as String? ?? '',
+        firstName: json['firstName'] as String? ?? '',
+        lastName: json['lastName'] as String? ?? '',
+        phone: json['phone'] as String? ?? '',
+        email: json['email'] as String? ?? '',
+        yachtName: json['yachtName'] as String? ?? '',
+        charterDate: DateTimeRange(
+            start: (json['charterStartDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+            end: (json['charterEndDate'] as Timestamp?)?.toDate() ?? DateTime.now()
+        ),
+        advance: json['advance'] as String? ?? '0',
+        sum: json['sum'] as String? ?? '0',
+        discount: json['discount'] as String? ?? '0',
+        amountOfPeople: (json['amountOfPeople'] as num?)?.toDouble() ?? 1,
+        notes: json['notes'] as String? ?? ''
+    );
+  }
+
+  Map<String, Object?> toJson() => {
+    'from': from,
+    'firstName': firstName,
+    'lastName': lastName,
+    'phone': phone,
+    'email': email,
+    'yachtName': yachtName,
+    'charterStartDate': Timestamp.fromDate(charterDate.start),
+    'charterEndDate': Timestamp.fromDate(charterDate.end),
+    'advance': advance,
+    'sum': sum,
+    'discount': discount,
+    'amountOfPeople': amountOfPeople,
+    'notes': notes
+  };
+
+
 }
