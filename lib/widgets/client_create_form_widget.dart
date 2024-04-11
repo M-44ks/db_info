@@ -1,6 +1,8 @@
 import 'package:db_info/models/client.dart';
 import 'package:flutter/material.dart';
 
+import '../services/database_service.dart';
+
 class ClientCreateFormWidget extends StatefulWidget {
   final Client? client;
 
@@ -14,6 +16,8 @@ class ClientCreateFormWidget extends StatefulWidget {
 }
 
 class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
+  final DatabaseService _databaseService = DatabaseService();
+
   late TextEditingController controllerFrom;
   late TextEditingController controllerFirstName;
   late TextEditingController controllerLastName;
@@ -30,24 +34,22 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
   @override
   void initState() {
     super.initState();
-
     initClient();
   }
 
   void initClient() {
-    final from = widget.client == null ? '' : widget.client!.from;
-    final firstName = widget.client == null ? '' : widget.client!.firstName;
-    final lastName = widget.client == null ? '' : widget.client!.firstName;
-    final phone = widget.client == null ? '' : widget.client!.phone;
-    final email = widget.client == null ? '' : widget.client!.email;
-    final yachtName = widget.client == null ? '' : widget.client!.yachtName;
+    final from = widget.client?.from ?? '';
+    final firstName = widget.client?.firstName ?? '';
+    final lastName = widget.client?.lastName ?? '';
+    final phone = widget.client?.phone ?? '';
+    final email = widget.client?.email ?? '';
+    final yachtName = widget.client?.yachtName ?? '';
     final charterDate = widget.client?.charterDate;
-    final advance = widget.client == null ? '' : widget.client!.advance;
-    final sum = widget.client == null ? '' : widget.client!.sum;
-    final discount = widget.client == null ? '' : widget.client!.discount;
-    final double amountOfPeople = widget.client == null ? 1 : widget.client!.amountOfPeople;
-    final notes = widget.client == null ? '' : widget.client!.notes;
-
+    final advance = widget.client?.advance ?? '0';
+    final sum = widget.client?.sum ?? '0';
+    final discount = widget.client?.discount ?? '0';
+    final double amountOfPeople = widget.client?.amountOfPeople ?? 1;
+    final notes = widget.client?.notes ?? '';
 
     setState(() {
       controllerFrom = TextEditingController(text: from);
@@ -280,7 +282,26 @@ class _ClientCreateFormWidgetState extends State<ClientCreateFormWidget> {
 
   Widget buildSubmit() =>
       FilledButton(
-        onPressed: () {},
+        onPressed: () {
+          Client client = Client(
+              from: controllerFrom.text,
+              firstName: controllerFirstName.text,
+              lastName: controllerLastName.text,
+              phone: controllerPhone.text,
+              email: controllerEmail.text,
+              yachtName: yachtName,
+              charterDate: _selectedDateTimeRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now()),
+              advance: controllerAdvance.text,
+              sum: controllerSum.text,
+              discount: controllerDiscount.text,
+              amountOfPeople: _currentAmountOfPeople,
+              notes: controllerNotes.text
+          );
+
+
+          _databaseService.addClient(client);
+          Navigator.pop(context);
+        },
         style: OutlinedButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
         ),
