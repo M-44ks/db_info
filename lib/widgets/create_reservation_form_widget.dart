@@ -12,10 +12,12 @@ class CreateReservationFormWidget extends StatefulWidget {
   });
 
   @override
-  State<CreateReservationFormWidget> createState() => _CreateReservationFormWidgetState();
+  State<CreateReservationFormWidget> createState() =>
+      _CreateReservationFormWidgetState();
 }
 
-class _CreateReservationFormWidgetState extends State<CreateReservationFormWidget> {
+class _CreateReservationFormWidgetState
+    extends State<CreateReservationFormWidget> {
   final DatabaseService _databaseService = DatabaseService();
 
   late TextEditingController controllerFrom;
@@ -30,6 +32,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
   late TextEditingController controllerDiscount;
   double _currentAmountOfPeople = 2;
   late TextEditingController controllerNotes;
+  var amountOfYachts = 1;
 
   @override
   void initState() {
@@ -58,7 +61,8 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
       controllerLastName = TextEditingController(text: lastName);
       controllerPhone = TextEditingController(text: phone);
       controllerEmail = TextEditingController(text: email);
-      controllerYachtNames = yachtNames.map((name) => TextEditingController(text: name)).toList();
+      controllerYachtNames =
+          yachtNames.map((name) => TextEditingController(text: name)).toList();
       _selectedDateTimeRange = charterDate;
       controllerAdvance = TextEditingController(text: advance.toString());
       controllerSum = TextEditingController(text: sum.toString());
@@ -69,8 +73,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
   }
 
   @override
-  Widget build(BuildContext context) =>
-      Form(
+  Widget build(BuildContext context) => Form(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -84,7 +87,47 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
             const SizedBox(height: 16),
             buildEmail(),
             const SizedBox(height: 16),
-            buildYacht(0),
+            ListView.builder(
+              itemCount: amountOfYachts,
+              itemBuilder: (context, index) => buildYacht(index),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+            ),
+            Builder(
+              builder: (context) {
+                // Check the condition based on the last item in the list
+                bool lastIsEmpty = controllerYachtNames.isNotEmpty &&
+                    controllerYachtNames.last.text.isEmpty;
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    // if (lastIsEmpty && controllerYachtNames.length > 1)
+                    IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: () => setState(() {
+                       if(amountOfYachts == 0) {
+                           amountOfYachts = 0;
+                         } else {
+                         amountOfYachts--;
+                         controllerYachtNames
+                             .removeLast();
+                       }
+                      }),
+                    ),
+                    // if (!lastIsEmpty)
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () => setState(() {
+                          amountOfYachts++;
+                          controllerYachtNames.add(
+                              TextEditingController());
+                        }),
+                      ),
+                  ],
+                );
+              },
+            ),
             const SizedBox(height: 16),
             buildDateRange(),
             const SizedBox(height: 16),
@@ -103,12 +146,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-
-
-
-
-  Widget buildFrom() =>
-      TextFormField(
+  Widget buildFrom() => TextFormField(
         controller: controllerFrom,
         decoration: const InputDecoration(
           labelText: 'Skąd się o nas dowiedział',
@@ -116,8 +154,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildFirstName() =>
-      TextFormField(
+  Widget buildFirstName() => TextFormField(
         controller: controllerFirstName,
         decoration: const InputDecoration(
           labelText: 'Imie',
@@ -125,8 +162,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildLastName() =>
-      TextFormField(
+  Widget buildLastName() => TextFormField(
         controller: controllerLastName,
         decoration: const InputDecoration(
           labelText: 'Nazwisko',
@@ -137,12 +173,10 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
   //TODO przy połączeniu przychodzącym na false inaczej true
   bool flag = false;
 
-  Widget buildPhone() =>
-      GestureDetector(
-        onDoubleTap: () =>
-            setState(() {
-              flag = flag == false ? true : false;
-            }),
+  Widget buildPhone() => GestureDetector(
+        onDoubleTap: () => setState(() {
+          flag = flag == false ? true : false;
+        }),
         child: TextFormField(
           controller: controllerPhone,
           enabled: flag,
@@ -151,15 +185,11 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
           decoration: const InputDecoration(
             labelText: 'Telefon',
             border: OutlineInputBorder(),
-          )
-
-          ,
-
+          ),
         ),
       );
 
-  Widget buildEmail() =>
-      TextFormField(
+  Widget buildEmail() => TextFormField(
         controller: controllerEmail,
         decoration: const InputDecoration(
           labelText: 'Email',
@@ -174,8 +204,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
     'SR230C',
   ];
 
-  Widget buildYacht(int index) =>
-      Autocomplete<String>(
+  Widget buildYacht(int index) => Autocomplete<String>(
         optionsBuilder: (TextEditingValue textEditingValue) {
           if (textEditingValue.text == '') {
             return const Iterable<String>.empty();
@@ -191,7 +220,6 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         },
       );
 
-
 //TODO Na podstawie wybranej łodzi - zajęte terminy
   void _presentDateTimeRangePicker() async {
     final pickedDateTimeRange = await showDateRangePicker(
@@ -206,29 +234,26 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
   }
 
   Widget buildDateRange() => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      TextButton(
-        onPressed: _presentDateTimeRangePicker,
-        child: const Row(children: [
-          Text('Data Czarteru'),
-          SizedBox(
-            width: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            onPressed: _presentDateTimeRangePicker,
+            child: const Row(children: [
+              Text('Data Czarteru'),
+              SizedBox(
+                width: 10,
+              ),
+              Icon(Icons.date_range)
+            ]),
           ),
-          Icon(Icons.date_range)
-        ]),
-      ),
-      Text(_selectedDateTimeRange == null
-          ? 'Nie wybrano daty'
-          : '${formatter.format(
-          _selectedDateTimeRange!.start)} - ${formatter.format(
-          _selectedDateTimeRange!.end)}'),
-    ],
-  );
+          Text(_selectedDateTimeRange == null
+              ? 'Nie wybrano daty'
+              : '${formatter.format(_selectedDateTimeRange!.start)} - ${formatter.format(_selectedDateTimeRange!.end)}'),
+        ],
+      );
 
   //TODO Na podstawie wybranej łodzi
-  Widget buildAmountOfPeople() =>
-      Slider(
+  Widget buildAmountOfPeople() => Slider(
         value: _currentAmountOfPeople,
         min: 1,
         max: 15,
@@ -241,8 +266,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         },
       );
 
-  Widget buildAdvance() =>
-      TextFormField(
+  Widget buildAdvance() => TextFormField(
         controller: controllerAdvance,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
@@ -252,8 +276,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildSum() =>
-      TextFormField(
+  Widget buildSum() => TextFormField(
         controller: controllerSum,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
@@ -263,8 +286,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildDiscount() =>
-      TextFormField(
+  Widget buildDiscount() => TextFormField(
         controller: controllerDiscount,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
@@ -274,8 +296,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildNotes() =>
-      TextFormField(
+  Widget buildNotes() => TextFormField(
         controller: controllerNotes,
         maxLines: 5,
         decoration: const InputDecoration(
@@ -284,8 +305,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
         ),
       );
 
-  Widget buildSubmit() =>
-      FilledButton(
+  Widget buildSubmit() => FilledButton(
         onPressed: () {
           Reservation reservation = Reservation(
               from: controllerFrom.text,
@@ -293,15 +313,16 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
               lastName: controllerLastName.text,
               phone: controllerPhone.text,
               email: controllerEmail.text,
-              yachtNames: controllerYachtNames.map((controller) => controller.text).toList(),
-              charterDate: _selectedDateTimeRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now()),
+              yachtNames: controllerYachtNames
+                  .map((controller) => controller.text)
+                  .toList(),
+              charterDate: _selectedDateTimeRange ??
+                  DateTimeRange(start: DateTime.now(), end: DateTime.now()),
               advance: double.tryParse(controllerAdvance.text) ?? 0.0,
               sum: double.tryParse(controllerSum.text) ?? 0.0,
               discount: double.tryParse(controllerDiscount.text) ?? 0.0,
               amountOfPeople: _currentAmountOfPeople,
-              notes: controllerNotes.text
-          );
-
+              notes: controllerNotes.text);
 
           _databaseService.addReservation(reservation);
           Navigator.pop(context);
