@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:db_info/models/yacht.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,7 +11,7 @@ class Reservation {
   final String lastName;
   final String phone;
   final String email;
-  final String yachtName;
+  final List<String> yachtNames;
   final DateTimeRange charterDate;
   final double advance;
   final double sum;
@@ -24,7 +25,7 @@ class Reservation {
     required this.lastName,
     required this.phone,
     required this.email,
-    required this.yachtName,
+    required this.yachtNames,
     required this.charterDate,
     required this.advance,
     required this.sum,
@@ -40,7 +41,7 @@ class Reservation {
         lastName: json['lastName'] as String? ?? '',
         phone: json['phone'] as String? ?? '',
         email: json['email'] as String? ?? '',
-        yachtName: json['yachtName'] as String? ?? '',
+        yachtNames: (json['yachtNames'] as List?)?.map((item) => item as String).toList() ?? [],
         charterDate: DateTimeRange(
             start: (json['charterStartDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
             end: (json['charterEndDate'] as Timestamp?)?.toDate() ?? DateTime.now()
@@ -59,7 +60,7 @@ class Reservation {
     'lastName': lastName,
     'phone': phone,
     'email': email,
-    'yachtName': yachtName,
+    'yachtNames': yachtNames,
     'charterStartDate': Timestamp.fromDate(charterDate.start),
     'charterEndDate': Timestamp.fromDate(charterDate.end),
     'advance': advance,
@@ -69,3 +70,4 @@ class Reservation {
     'notes': notes
   };
 }
+

@@ -23,7 +23,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
   late TextEditingController controllerLastName;
   late TextEditingController controllerPhone;
   late TextEditingController controllerEmail;
-  late String yachtName;
+  late List<TextEditingController> controllerYachtNames;
   late DateTimeRange? _selectedDateTimeRange;
   late TextEditingController controllerAdvance;
   late TextEditingController controllerSum;
@@ -44,7 +44,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
     //TODO Tu logika połączenia przychodzącego
     final phone = widget.reservation?.phone ?? '';
     final email = widget.reservation?.email ?? '';
-    final yachtName = widget.reservation?.yachtName ?? '';
+    final yachtNames = widget.reservation?.yachtNames ?? [''];
     final charterDate = widget.reservation?.charterDate;
     final advance = widget.reservation?.advance ?? '';
     final sum = widget.reservation?.sum ?? '';
@@ -58,7 +58,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
       controllerLastName = TextEditingController(text: lastName);
       controllerPhone = TextEditingController(text: phone);
       controllerEmail = TextEditingController(text: email);
-      this.yachtName = yachtName;
+      controllerYachtNames = yachtNames.map((name) => TextEditingController(text: name)).toList();
       _selectedDateTimeRange = charterDate;
       controllerAdvance = TextEditingController(text: advance.toString());
       controllerSum = TextEditingController(text: sum.toString());
@@ -84,7 +84,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
             const SizedBox(height: 16),
             buildEmail(),
             const SizedBox(height: 16),
-            buildYacht(),
+            buildYacht(0),
             const SizedBox(height: 16),
             buildDateRange(),
             const SizedBox(height: 16),
@@ -174,7 +174,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
     'SR230C',
   ];
 
-  Widget buildYacht() =>
+  Widget buildYacht(int index) =>
       Autocomplete<String>(
         optionsBuilder: (TextEditingValue textEditingValue) {
           if (textEditingValue.text == '') {
@@ -185,9 +185,12 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
           });
         },
         onSelected: (String selection) {
-          yachtName = selection;
+          setState(() {
+            controllerYachtNames[index].text = selection;
+          });
         },
       );
+
 
 //TODO Na podstawie wybranej łodzi - zajęte terminy
   void _presentDateTimeRangePicker() async {
@@ -290,7 +293,7 @@ class _CreateReservationFormWidgetState extends State<CreateReservationFormWidge
               lastName: controllerLastName.text,
               phone: controllerPhone.text,
               email: controllerEmail.text,
-              yachtName: yachtName,
+              yachtNames: controllerYachtNames.map((controller) => controller.text).toList(),
               charterDate: _selectedDateTimeRange ?? DateTimeRange(start: DateTime.now(), end: DateTime.now()),
               advance: double.tryParse(controllerAdvance.text) ?? 0.0,
               sum: double.tryParse(controllerSum.text) ?? 0.0,
