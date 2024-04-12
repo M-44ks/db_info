@@ -2,15 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/reservation.dart';
 
 
-const String clientCollectionRef = "clients";
+const String reservationCollectionRef = "reservations";
 
 class DatabaseService {
   final _firestore = FirebaseFirestore.instance;
 
-  late final CollectionReference _clientsRef;
+  late final CollectionReference _reservationsRef;
 
   DatabaseService() {
-    _clientsRef = _firestore.collection(clientCollectionRef).withConverter<Reservation>(
+    _reservationsRef = _firestore.collection(reservationCollectionRef).withConverter<Reservation>(
         fromFirestore: (snapshots, _) => Reservation.fromJson(
           snapshots.data()!,
         ),
@@ -18,18 +18,18 @@ class DatabaseService {
   }
 
   Stream<QuerySnapshot> getReservations() {
-    return _clientsRef.snapshots();
+    return _reservationsRef.snapshots();
   }
 
   void addReservation(Reservation reservation) async {
-    _clientsRef.add(reservation);
+    _reservationsRef.add(reservation);
   }
 
   void updateReservation(String reservationId, Reservation reservation) {
-    _clientsRef.doc(reservationId).update(reservation.toJson());
+    _reservationsRef.doc(reservationId).update(reservation.toJson());
   }
 
   void deleteReservation(String reservationId) {
-    _clientsRef.doc(reservationId).delete();
+    _reservationsRef.doc(reservationId).delete();
   }
 }
