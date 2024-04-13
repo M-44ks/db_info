@@ -13,7 +13,7 @@ class _GetClientsScreenState extends State<GetClientsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('Clients'),
+          title: const Text('Rezerwacje'),
         ),
         body: const SafeArea(
             child: Column(

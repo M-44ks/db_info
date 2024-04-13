@@ -9,7 +9,7 @@ class CreateReservationScreen extends StatelessWidget {
   Widget build(BuildContext context) =>
       Scaffold(
         appBar: AppBar(
-          title: const Text('Create client'),
+          title: const Text('Utwórz rezerwację'),
         ),
         body: Center(
           child: ListView(
