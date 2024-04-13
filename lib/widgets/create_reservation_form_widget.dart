@@ -30,8 +30,9 @@ class _CreateReservationFormWidgetState
   late TextEditingController controllerAdvance;
   late TextEditingController controllerSum;
   late TextEditingController controllerDiscount;
-  double _currentAmountOfPeople = 2;
+  late double _currentAmountOfPeople;
   late TextEditingController controllerNotes;
+  List<double> amountOfPeopleOnBoat = [4];
   var amountOfYachts = 1;
 
   @override
@@ -52,7 +53,8 @@ class _CreateReservationFormWidgetState
     final advance = widget.reservation?.advance ?? '';
     final sum = widget.reservation?.sum ?? '';
     final discount = widget.reservation?.discount ?? '';
-    final double amountOfPeople = widget.reservation?.amountOfPeople ?? 1;
+    final double amountOfPeople =
+        widget.reservation?.amountOfPeople ?? 0;
     final notes = widget.reservation?.notes ?? '';
 
     setState(() {
@@ -89,49 +91,53 @@ class _CreateReservationFormWidgetState
             const SizedBox(height: 16),
             ListView.builder(
               itemCount: amountOfYachts,
-              itemBuilder: (context, index) => buildYacht(index),
+              itemBuilder: (context, index) => Column(
+                children: [
+                  buildAmountOfPeople(index),
+                  buildYacht(index),
+                  const SizedBox(height: 16),
+                ],
+              ),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
             ),
             Builder(
               builder: (context) {
                 // Check the condition based on the last item in the list
-                bool lastIsEmpty = controllerYachtNames.isNotEmpty &&
-                    controllerYachtNames.last.text.isEmpty;
+                // bool lastIsEmpty = controllerYachtNames.isNotEmpty &&
+                //     controllerYachtNames.last.text.isEmpty;
 
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     // if (lastIsEmpty && controllerYachtNames.length > 1)
                     IconButton(
-                      icon: Icon(Icons.remove),
+                      icon: const Icon(Icons.remove),
                       onPressed: () => setState(() {
-                       if(amountOfYachts == 0) {
-                           amountOfYachts = 0;
-                         } else {
-                         amountOfYachts--;
-                         controllerYachtNames
-                             .removeLast();
-                       }
+                        if (amountOfYachts == 0) {
+                          amountOfYachts = 0;
+                        } else {
+                          amountOfYachts--;
+                          controllerYachtNames.removeLast();
+                          amountOfPeopleOnBoat.removeLast();
+                        }
                       }),
                     ),
                     // if (!lastIsEmpty)
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () => setState(() {
-                          amountOfYachts++;
-                          controllerYachtNames.add(
-                              TextEditingController());
-                        }),
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => setState(() {
+                        amountOfYachts++;
+                        controllerYachtNames.add(TextEditingController());
+                        amountOfPeopleOnBoat.add(4);
+                      }),
+                    ),
                   ],
                 );
               },
             ),
             const SizedBox(height: 16),
             buildDateRange(),
-            const SizedBox(height: 16),
-            buildAmountOfPeople(),
             const SizedBox(height: 16),
             buildAdvance(),
             const SizedBox(height: 16),
@@ -204,10 +210,31 @@ class _CreateReservationFormWidgetState
     'SR230C',
   ];
 
+  //TODO Na podstawie wybranej łodzi
+  Widget buildAmountOfPeople(index) => Slider(
+        value: amountOfPeopleOnBoat[index],
+        min: 1,
+        max: 15,
+        divisions: 15,
+        label: amountOfPeopleOnBoat[index].round().toString(),
+        onChanged: (double value) {
+          setState(() {
+            amountOfPeopleOnBoat[index] = value;
+          });
+        },
+      );
+
   Widget buildYacht(int index) => Autocomplete<String>(
         optionsBuilder: (TextEditingValue textEditingValue) {
+          //Wyświetla opcje po wpisaniu pierwszych znaków
+          // if (textEditingValue.text == '') {
+          //   return const Iterable<String>.empty();
+          // }
+          // return _kOptions.where((String option) {
+          //   return option.contains(textEditingValue.text.toUpperCase());
+          // });
           if (textEditingValue.text == '') {
-            return const Iterable<String>.empty();
+            return _kOptions;
           }
           return _kOptions.where((String option) {
             return option.contains(textEditingValue.text.toUpperCase());
@@ -217,6 +244,22 @@ class _CreateReservationFormWidgetState
           setState(() {
             controllerYachtNames[index].text = selection;
           });
+        },
+        fieldViewBuilder: (BuildContext context,
+            TextEditingController fieldTextEditingController,
+            FocusNode fieldFocusNode,
+            VoidCallback onFieldSubmitted) {
+          return TextFormField(
+            controller: fieldTextEditingController,
+            focusNode: fieldFocusNode,
+            onFieldSubmitted: (String value) {
+              onFieldSubmitted();
+            },
+            decoration: InputDecoration(
+              labelText: index == 0 ? 'Jacht' : 'Jacht ${index + 1}',
+              border: const OutlineInputBorder(),
+            ),
+          );
         },
       );
 
@@ -250,20 +293,6 @@ class _CreateReservationFormWidgetState
               ? 'Nie wybrano daty'
               : '${formatter.format(_selectedDateTimeRange!.start)} - ${formatter.format(_selectedDateTimeRange!.end)}'),
         ],
-      );
-
-  //TODO Na podstawie wybranej łodzi
-  Widget buildAmountOfPeople() => Slider(
-        value: _currentAmountOfPeople,
-        min: 1,
-        max: 15,
-        divisions: 15,
-        label: _currentAmountOfPeople.round().toString(),
-        onChanged: (double value) {
-          setState(() {
-            _currentAmountOfPeople = value;
-          });
-        },
       );
 
   Widget buildAdvance() => TextFormField(
@@ -307,6 +336,9 @@ class _CreateReservationFormWidgetState
 
   Widget buildSubmit() => FilledButton(
         onPressed: () {
+          for (var element in amountOfPeopleOnBoat) {
+            _currentAmountOfPeople += element;
+          }
           Reservation reservation = Reservation(
               from: controllerFrom.text,
               firstName: controllerFirstName.text,
