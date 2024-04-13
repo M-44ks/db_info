@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import '../models/reservation.dart';
+import '../models/yacht.dart';
 import '../services/database_service.dart';
 
 class CreateReservationFormWidget extends StatefulWidget {
@@ -35,6 +36,11 @@ class _CreateReservationFormWidgetState
   List<double> amountOfPeopleOnBoat = [4];
   var amountOfYachts = 1;
 
+  List<Yacht> yachtList = [];
+  late List<List<String>> _kOptions;
+  List<Key> autocompleteKeys = [];
+  List<FocusNode> focusNodes = [];
+
   @override
   void initState() {
     super.initState();
@@ -53,8 +59,7 @@ class _CreateReservationFormWidgetState
     final advance = widget.reservation?.advance ?? '';
     final sum = widget.reservation?.sum ?? '';
     final discount = widget.reservation?.discount ?? '';
-    final double amountOfPeople =
-        widget.reservation?.amountOfPeople ?? 0;
+    final double amountOfPeople = widget.reservation?.amountOfPeople ?? 0;
     final notes = widget.reservation?.notes ?? '';
 
     setState(() {
@@ -63,8 +68,13 @@ class _CreateReservationFormWidgetState
       controllerLastName = TextEditingController(text: lastName);
       controllerPhone = TextEditingController(text: phone);
       controllerEmail = TextEditingController(text: email);
-      controllerYachtNames =
-          yachtNames.map((name) => TextEditingController(text: name)).toList();
+      controllerYachtNames = yachtNames.map((name) {
+        var key = UniqueKey();
+        autocompleteKeys.add(key);
+        focusNodes.add(FocusNode());
+        return TextEditingController(text: name);
+      }).toList();
+      _kOptions = List.generate(yachtNames.length, (index) => []);
       _selectedDateTimeRange = charterDate;
       controllerAdvance = TextEditingController(text: advance.toString());
       controllerSum = TextEditingController(text: sum.toString());
@@ -72,6 +82,16 @@ class _CreateReservationFormWidgetState
       _currentAmountOfPeople = amountOfPeople;
       controllerNotes = TextEditingController(text: notes);
     });
+  }
+
+  Future<void> getYachts(capacity) async {
+    yachtList.clear();
+    QuerySnapshot snapshot = await _databaseService.getYachts(capacity).first;
+    List yachts = snapshot.docs;
+    for (var yachtDoc in yachts) {
+      Yacht yacht = yachtDoc.data();
+      yachtList.add(yacht);
+    }
   }
 
   @override
@@ -103,33 +123,31 @@ class _CreateReservationFormWidgetState
             ),
             Builder(
               builder: (context) {
-                // Check the condition based on the last item in the list
-                // bool lastIsEmpty = controllerYachtNames.isNotEmpty &&
-                //     controllerYachtNames.last.text.isEmpty;
-
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    // if (lastIsEmpty && controllerYachtNames.length > 1)
                     IconButton(
                       icon: const Icon(Icons.remove),
                       onPressed: () => setState(() {
-                        if (amountOfYachts == 0) {
-                          amountOfYachts = 0;
-                        } else {
+                        if (amountOfYachts > 0) {
                           amountOfYachts--;
                           controllerYachtNames.removeLast();
                           amountOfPeopleOnBoat.removeLast();
+                          autocompleteKeys.removeLast();
+                          focusNodes.removeLast();
+                          _kOptions.removeLast();
                         }
                       }),
                     ),
-                    // if (!lastIsEmpty)
                     IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () => setState(() {
                         amountOfYachts++;
                         controllerYachtNames.add(TextEditingController());
                         amountOfPeopleOnBoat.add(4);
+                        autocompleteKeys.add(UniqueKey());
+                        focusNodes.add(FocusNode());
+                        _kOptions.add([]);
                       }),
                     ),
                   ],
@@ -203,65 +221,75 @@ class _CreateReservationFormWidgetState
         ),
       );
 
-//TODO LISTA POBIERANA Z ARKUSZY
-  static const List<String> _kOptions = <String>[
-    'SR190',
-    'SR210B',
-    'SR230C',
-  ];
+  bool isUpdatingYachts = false;
 
-  //TODO Na podstawie wybranej łodzi
   Widget buildAmountOfPeople(index) => Slider(
-        value: amountOfPeopleOnBoat[index],
-        min: 1,
-        max: 15,
-        divisions: 15,
-        label: amountOfPeopleOnBoat[index].round().toString(),
-        onChanged: (double value) {
-          setState(() {
-            amountOfPeopleOnBoat[index] = value;
-          });
-        },
-      );
+    value: amountOfPeopleOnBoat[index],
+    min: 1,
+    max: 15,
+    divisions: 15,
+    label: amountOfPeopleOnBoat[index].round().toString(),
+    onChanged: (double value) async {
+      // Lock the sliding when another sliding action is in process
+      if (isUpdatingYachts) return;
+
+      setState(() {
+        isUpdatingYachts = true;
+        amountOfPeopleOnBoat[index] = value;
+      });
+
+      try {
+        await getYachts(amountOfPeopleOnBoat[index]);
+
+        setState(() {
+          _kOptions[index].clear();
+          _kOptions[index] = yachtList.map((yacht) => yacht.name).toList();
+        });
+      } catch (e) {
+        // Handle the exception
+      } finally {
+        setState(() {
+          isUpdatingYachts = false;  // Release the lock when done
+        });
+      }
+    },
+  );
 
   Widget buildYacht(int index) => Autocomplete<String>(
-        optionsBuilder: (TextEditingValue textEditingValue) {
-          //Wyświetla opcje po wpisaniu pierwszych znaków
-          // if (textEditingValue.text == '') {
-          //   return const Iterable<String>.empty();
-          // }
-          // return _kOptions.where((String option) {
-          //   return option.contains(textEditingValue.text.toUpperCase());
-          // });
-          if (textEditingValue.text == '') {
-            return _kOptions;
-          }
-          return _kOptions.where((String option) {
-            return option.contains(textEditingValue.text.toUpperCase());
-          });
+    key: autocompleteKeys[index],
+    optionsBuilder: (TextEditingValue textEditingValue) {
+      if (textEditingValue.text == '' || focusNodes[index].hasFocus) {
+        // return all options while the input field is in focus
+        return _kOptions[index];
+      }
+      // Here, return the filtered options when there is input in the text field
+      // and the autocomplete is not in focus
+      return _kOptions[index].where((String option) {
+        return option.contains(textEditingValue.text.toUpperCase());
+      });
+    },
+    onSelected: (String selection) {
+      setState(() {
+        controllerYachtNames[index].text = selection;
+      });
+    },
+    fieldViewBuilder: (BuildContext context,
+        TextEditingController fieldTextEditingController,
+        FocusNode fieldFocusNode,
+        VoidCallback onFieldSubmitted) {
+      return TextFormField(
+        controller: fieldTextEditingController,
+        focusNode: fieldFocusNode,
+        onFieldSubmitted: (String value) {
+          onFieldSubmitted();
         },
-        onSelected: (String selection) {
-          setState(() {
-            controllerYachtNames[index].text = selection;
-          });
-        },
-        fieldViewBuilder: (BuildContext context,
-            TextEditingController fieldTextEditingController,
-            FocusNode fieldFocusNode,
-            VoidCallback onFieldSubmitted) {
-          return TextFormField(
-            controller: fieldTextEditingController,
-            focusNode: fieldFocusNode,
-            onFieldSubmitted: (String value) {
-              onFieldSubmitted();
-            },
-            decoration: InputDecoration(
-              labelText: index == 0 ? 'Jacht' : 'Jacht ${index + 1}',
-              border: const OutlineInputBorder(),
-            ),
-          );
-        },
+        decoration: InputDecoration(
+          labelText: index == 0 ? 'Jacht' : 'Jacht ${index + 1}',
+          border: const OutlineInputBorder(),
+        ),
       );
+    },
+  );
 
 //TODO Na podstawie wybranej łodzi - zajęte terminy
   void _presentDateTimeRangePicker() async {
